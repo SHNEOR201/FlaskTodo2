@@ -1,4 +1,5 @@
-name: Update Push Date CSV
+# .github/workflows/update_date.yml
+name: Update Push Date
 
 on:
   push:
@@ -15,35 +16,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Gather push info
+      - name: Get current date, time, and user
         id: info
-        run: |
-          DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')
-          USER=${{ github.actor }}
-          COMMIT_SHA=${{ github.sha }}
-          # רשימת הקבצים ששונו
-          FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $COMMIT_SHA | tr '\n' '; ' | sed 's/; $//')
-          # יוצרים שורה בפורמט CSV
-          CSV_LINE="$DATE_TIME, $USER, $COMMIT_SHA, \"$FILES_CHANGED\", Hello World"
-          echo "current_info=$CSV_LINE" >> $GITHUB_OUTPUT
+        run: echo "current_info=$(date '+%Y-%m-%d %H:%M:%S') by ${{ github.actor }}" >> $GITHUB_OUTPUT # שומר את התאריך, השעה והמשתמש במשתנה
 
-      - name: Ensure push_date.csv exists
+      - name: Append info to file
         run: |
-          if [ ! -f push_date.csv ]; then
-            echo "Date, User, Commit, Changed Files, Message" > push_date.csv
-          fi
+          echo "${{ steps.info.outputs.current_info }}" >> push_date.log
 
-      - name: Append info to push_date.csv
-        run: |
-          echo "${{ steps.info.outputs.current_info }}" >> push_date.csv
-
-      - name: Commit and push if changed
+      - name: Commit and push updated file
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add push_date.csv
-          if ! git diff --cached --quiet; then
-            git commit -m "Update push_date.csv with latest push info"
-            git push
-          else
-            echo "No changes to commit"
+          git add push_date.log
+          git commit -m "Update push_date.log with latest push info"
+          git push
