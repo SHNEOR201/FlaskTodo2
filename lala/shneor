@@ -1,0 +1,28 @@
+import random
+
+def number_guessing_game():
+    print("ברוך הבא למשחק ניחוש המספרים!")
+    print("חשבתי על מספר בין 1 ל-100. תנסה לנחש אותו.")
+    
+    number_to_guess = random.randint(1, 100)
+    attempts = 0
+    
+    while True:
+        try:
+            guess = int(input("הכנס את הניחוש שלך: "))
+        except ValueError:
+            print("נא להכניס מספר שלם!")
+            continue
+        
+        attempts += 1
+        
+        f guess < number_to_guess:
+            print("יותר גבוה!")
+        elif guess > number_to_guess:
+            print("יותר נמוך!")
+        else:
+            print(f"מזל טוב! ניחשת את המספר ב-{attempts} ניסיונות!")
+            break
+
+# הפעלת המשחק
+number_guessing_game()
